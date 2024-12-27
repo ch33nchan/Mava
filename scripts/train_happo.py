@@ -1,15 +1,23 @@
-import jax
-from mava.algorithms.happo import HAPPO
-from mava.configs.happo_config import HAPPOConfig
-from mava.environments import create_environment
-from mava.trainers import Trainer
+from mava.configs.system.ppo.ff_ippo import FFIPPOConfig as BaseConfig
 
-def main():
-    config = HAPPOConfig()
-    environment = create_environment(config)
-    algorithm = HAPPO(config)
-    trainer = Trainer(config, environment, algorithm)
-    trainer.train()
-
-if __name__ == "__main__":
-    main()
+class HAPPOConfig(BaseConfig):
+    def __init__(self) -> None:
+        super().__init__()
+        self.algorithm = 'HAPPO'
+        self.clip_param = 0.2
+        self.num_agents = 4
+        self.lr = 3e-4
+        self.network = {
+            'pre_torso': {
+                '_target_': 'mava.networks.torsos.MLPTorso',
+                'layer_sizes': [128, 128],
+                'use_layer_norm': False,
+                'activation': 'relu'
+            },
+            'post_torso': {
+                '_target_': 'mava.networks.torsos.MLPTorso',
+                'layer_sizes': [128, 128],
+                'use_layer_norm': False,
+                'activation': 'relu'
+            }
+        }
