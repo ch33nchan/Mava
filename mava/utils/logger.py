@@ -32,14 +32,12 @@ from omegaconf import DictConfig
 from pandas.io.json._normalize import _simple_json_normalize as flatten_dict
 from tensorboard_logger import configure, log_value
 
-
 class LogEvent(Enum):
     ACT = "actor"
     TRAIN = "trainer"
     EVAL = "evaluator"
     ABSOLUTE = "absolute"
     MISC = "misc"
-
 
 class MavaLogger:
     """The main logger for Mava systems.
@@ -104,7 +102,6 @@ class MavaLogger:
         """Stop the logger."""
         self.logger.stop()
 
-
 class BaseLogger(abc.ABC):
     @abc.abstractmethod
     def __init__(self, cfg: DictConfig, unique_token: str) -> None:
@@ -127,9 +124,8 @@ class BaseLogger(abc.ABC):
         """Stop the logger."""
         return None
 
-
 class MultiLogger(BaseLogger):
-    """Logger that can log to multiple loggers at oncce."""
+    """Logger that can log to multiple loggers at once."""
 
     def __init__(self, loggers: List[BaseLogger]) -> None:
         self.loggers = loggers
@@ -145,7 +141,6 @@ class MultiLogger(BaseLogger):
     def stop(self) -> None:
         for logger in self.loggers:
             logger.stop()
-
 
 class NeptuneLogger(BaseLogger):
     """Logger for neptune.ai."""
@@ -196,7 +191,6 @@ class NeptuneLogger(BaseLogger):
 
         self.logger[f"metrics/metrics_{self.unique_token}"].upload(zip_file_path)
 
-
 class TensorboardLogger(BaseLogger):
     """Logger for tensorboard"""
 
@@ -210,7 +204,6 @@ class TensorboardLogger(BaseLogger):
     def log_stat(self, key: str, value: float, step: int, eval_step: int, event: LogEvent) -> None:
         t = step if event != LogEvent.EVAL else eval_step
         self.log(f"{event.value}/{key}", value, t)
-
 
 class JsonLogger(BaseLogger):
     """Json logger for marl-eval."""
@@ -253,7 +246,6 @@ class JsonLogger(BaseLogger):
         # We only want to log evaluation metrics to the json logger
         if event == LogEvent.ABSOLUTE or event == LogEvent.EVAL:
             self.logger.write(step, key, value, eval_step, event == LogEvent.ABSOLUTE)
-
 
 class ConsoleLogger(BaseLogger):
     """Logger for writing to stdout."""
@@ -306,7 +298,6 @@ class ConsoleLogger(BaseLogger):
             f"{colour}{Style.BRIGHT}{event.value.upper()} - {log_str}{Style.RESET_ALL}"
         )
 
-
 def _make_multi_logger(cfg: DictConfig) -> BaseLogger:
     """Creates a MultiLogger given a config"""
     loggers: List[BaseLogger] = []
@@ -337,11 +328,9 @@ def _make_multi_logger(cfg: DictConfig) -> BaseLogger:
 
     return MultiLogger(loggers)
 
-
 def get_logger_path(config: DictConfig, logger_type: str) -> str:
     """Helper function to create the experiment path."""
     return f"{logger_type}/{config.logger.system_name}"
-
 
 def describe(x: ArrayLike) -> Union[Dict[str, ArrayLike], ArrayLike]:
     """Generate summary statistics for an array of metrics (mean, std, min, max)."""
